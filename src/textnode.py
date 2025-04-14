@@ -72,6 +72,16 @@ class MarkdownImage(NamedTuple):
     url: str
 
 
+class MarkdownLink(NamedTuple):
+    text: str
+    url: str
+
+
 def extract_markdown_images(markdown: str) -> list[MarkdownImage]:
-    matches = re.findall(r"\!\[([^\]]+)\]\(([^)]+)\)", markdown)
+    matches = re.findall(r"\!\[([^\]]*)\]\(([^)]+)\)", markdown)
     return [MarkdownImage(alt_text, url) for alt_text, url in matches]
+
+
+def extract_markdown_links(markdown: str) -> list[MarkdownLink]:
+    matches = re.findall(r"(?<!!)\[([^\]]+)\]\(([^)]+)\)", markdown)
+    return [MarkdownLink(text, url) for text, url in matches]

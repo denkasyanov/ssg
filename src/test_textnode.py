@@ -3,9 +3,11 @@ import pytest
 from htmlnode import HTMLNode
 from textnode import (
     MarkdownImage,
+    MarkdownLink,
     TextNode,
     TextType,
     extract_markdown_images,
+    extract_markdown_links,
     split_nodes_delimiter,
 )
 
@@ -153,10 +155,31 @@ def test_extract_markdown_images_single():
     assert images == [MarkdownImage("alt text", "https://example.com/image.png")]
 
 
+def test_extract_markdown_images_empty_alt_text():
+    markdown = "This is an image ![](https://example.com/image.png)"
+    images = extract_markdown_images(markdown)
+    assert images == [MarkdownImage("", "https://example.com/image.png")]
+
+
 def test_extract_markdown_images_multiple():
     markdown = "This is an image ![alt text](https://example.com/image.png) and another image ![alt text 2](https://example.com/image2.png)"
     images = extract_markdown_images(markdown)
     assert images == [
         MarkdownImage("alt text", "https://example.com/image.png"),
         MarkdownImage("alt text 2", "https://example.com/image2.png"),
+    ]
+
+
+def test_extract_markdown_links_single():
+    markdown = "This is a link [link text](https://example.com)"
+    links = extract_markdown_links(markdown)
+    assert links == [MarkdownLink("link text", "https://example.com")]
+
+
+def test_extract_markdown_links_multiple():
+    markdown = "This is a link [link text](https://example.com) and another link [link text 2](https://example.com/2)"
+    links = extract_markdown_links(markdown)
+    assert links == [
+        MarkdownLink("link text", "https://example.com"),
+        MarkdownLink("link text 2", "https://example.com/2"),
     ]
