@@ -1,6 +1,13 @@
 import pytest
+
 from htmlnode import HTMLNode
-from textnode import TextNode, TextType, split_nodes_delimiter
+from textnode import (
+    MarkdownImage,
+    TextNode,
+    TextType,
+    extract_markdown_images,
+    split_nodes_delimiter,
+)
 
 
 def test_eq():
@@ -137,4 +144,19 @@ def test_split_nodes_delimiter_multiple_nodes():
         TextNode("This is also ", TextType.TEXT),
         TextNode("bold", TextType.BOLD),
         TextNode(" text", TextType.TEXT),
+    ]
+
+
+def test_extract_markdown_images_single():
+    markdown = "This is an image ![alt text](https://example.com/image.png)"
+    images = extract_markdown_images(markdown)
+    assert images == [MarkdownImage("alt text", "https://example.com/image.png")]
+
+
+def test_extract_markdown_images_multiple():
+    markdown = "This is an image ![alt text](https://example.com/image.png) and another image ![alt text 2](https://example.com/image2.png)"
+    images = extract_markdown_images(markdown)
+    assert images == [
+        MarkdownImage("alt text", "https://example.com/image.png"),
+        MarkdownImage("alt text 2", "https://example.com/image2.png"),
     ]

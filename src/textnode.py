@@ -1,5 +1,9 @@
 from __future__ import annotations
+
+import re
 from enum import Enum
+from typing import NamedTuple
+
 from htmlnode import HTMLNode
 
 
@@ -61,3 +65,13 @@ def split_nodes_delimiter(
         else:
             next_nodes.append(node)
     return next_nodes
+
+
+class MarkdownImage(NamedTuple):
+    alt_text: str
+    url: str
+
+
+def extract_markdown_images(markdown: str) -> list[MarkdownImage]:
+    matches = re.findall(r"\!\[([^\]]+)\]\(([^)]+)\)", markdown)
+    return [MarkdownImage(alt_text, url) for alt_text, url in matches]
