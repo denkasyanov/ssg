@@ -9,6 +9,8 @@ from textnode import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
 )
 
 
@@ -149,6 +151,15 @@ def test_split_nodes_delimiter_multiple_nodes():
     ]
 
 
+def test_split_nodes_delimiter_odd_number_of_delimiters():
+    with pytest.raises(ValueError):
+        split_nodes_delimiter(
+            [TextNode("This **is **bold** text", TextType.TEXT)],
+            "**",
+            TextType.BOLD,
+        )
+
+
 def test_extract_markdown_images_single():
     markdown = "This is an image ![alt text](https://example.com/image.png)"
     images = extract_markdown_images(markdown)
@@ -182,4 +193,62 @@ def test_extract_markdown_links_multiple():
     assert links == [
         MarkdownLink("link text", "https://example.com"),
         MarkdownLink("link text 2", "https://example.com/2"),
+    ]
+
+
+def test_split_images_without_trailing_text():
+    node = TextNode(
+        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+        TextType.TEXT,
+    )
+    new_nodes = split_nodes_image([node])
+    assert new_nodes == [
+        TextNode("This is text with an ", TextType.TEXT),
+        TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+        TextNode(" and another ", TextType.TEXT),
+        TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"),
+    ]
+
+
+def test_split_images_with_trailing_text():
+    node = TextNode(
+        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png) and some trailing text",
+        TextType.TEXT,
+    )
+    new_nodes = split_nodes_image([node])
+    assert new_nodes == [
+        TextNode("This is text with an ", TextType.TEXT),
+        TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+        TextNode(" and another ", TextType.TEXT),
+        TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"),
+        TextNode(" and some trailing text", TextType.TEXT),
+    ]
+
+
+def test_split_nodes_link_without_trailing_text():
+    node = TextNode(
+        "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+        TextType.TEXT,
+    )
+    new_nodes = split_nodes_link([node])
+    assert new_nodes == [
+        TextNode("This is text with a link ", TextType.TEXT),
+        TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+        TextNode(" and ", TextType.TEXT),
+        TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+    ]
+
+
+def test_split_nodes_link_with_trailing_text():
+    node = TextNode(
+        "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) and some trailing text",
+        TextType.TEXT,
+    )
+    new_nodes = split_nodes_link([node])
+    assert new_nodes == [
+        TextNode("This is text with a link ", TextType.TEXT),
+        TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+        TextNode(" and ", TextType.TEXT),
+        TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
+        TextNode(" and some trailing text", TextType.TEXT),
     ]
