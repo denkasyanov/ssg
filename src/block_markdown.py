@@ -22,7 +22,7 @@ def block_to_block_type(block: str) -> BlockType:
     elif re.match(r"^`{3,}.*`{3,}$", block, re.DOTALL):
         return BlockType.CODE
 
-    elif all(line.startswith("> ") for line in block.splitlines()):
+    elif all(line.startswith(">") for line in block.splitlines()):
         return BlockType.QUOTE
 
     elif all(line.startswith("- ") for line in block.splitlines()):
@@ -67,13 +67,25 @@ def paragraph_md_to_html_node(paragraph: str) -> list[LeafNode]:
             html_nodes.append(LeafNode(tag="i", value=text_node.text))
         elif text_node.text_type == TextType.CODE:
             html_nodes.append(LeafNode(tag="code", value=text_node.text))
+        elif text_node.text_type == TextType.IMAGE:
+            html_nodes.append(
+                LeafNode(
+                    tag="img",
+                    value=" ",
+                    props={"src": text_node.url, "alt": text_node.text},
+                )
+            )
+        elif text_node.text_type == TextType.LINK:
+            html_nodes.append(
+                LeafNode(tag="a", value=text_node.text, props={"href": text_node.url})
+            )
         else:
             raise ValueError(f"Invalid text type: {text_node.text_type}")
 
     return html_nodes
 
 
-def heading_md_to_html_node(heading: str) -> ParentNode:
+def heading_md_to_html_node(heading: str) -> LeafNode:
     heading_level = heading.count("#")
 
     content = heading.strip("#").strip()
@@ -94,9 +106,12 @@ def code_md_to_html_node(code: str) -> ParentNode:
 
 
 def quote_md_to_html_node(quote: str) -> ParentNode:
+    lines = quote.splitlines()
+    stripped_lines = [line.lstrip(">").strip() for line in lines]
+    content = " ".join(stripped_lines)
     return LeafNode(
         tag="blockquote",
-        value=quote,
+        value=content,
     )
 
 
@@ -106,10 +121,11 @@ def unordered_list_md_to_html_nodes(unordered_list: str) -> list[LeafNode]:
     list_item_nodes = []
 
     for line in lines:
+        processed_line = paragraph_md_to_html_node(line.strip("- ").strip())
         list_item_nodes.append(
-            LeafNode(
+            ParentNode(
                 tag="li",
-                value=line.strip("- ").strip(),
+                children=processed_line,
             )
         )
 
@@ -125,10 +141,11 @@ def ordered_list_md_to_html_nodes(ordered_list: str) -> list[LeafNode]:
     list_item_nodes = []
 
     for line in lines:
+        processed_line = paragraph_md_to_html_node(line.split(".", 1)[1].strip())
         list_item_nodes.append(
-            LeafNode(
+            ParentNode(
                 tag="li",
-                value=line.split(".", 1)[1].strip(),
+                children=processed_line,
             )
         )
 
