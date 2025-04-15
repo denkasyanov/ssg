@@ -30,19 +30,19 @@ class TextNode:
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
 
-    def to_html_node(self) -> HTMLNode:
+    def to_html_node(self) -> HTMLNode | str:
         match self.text_type:
             case TextType.TEXT:
-                return HTMLNode(self.text)
+                return self.text
             case TextType.BOLD:
-                return HTMLNode(self.text, "b")
+                return HTMLNode("b", self.text)
             case TextType.ITALIC:
-                return HTMLNode(self.text, "i")
+                return HTMLNode("i", self.text)
             case TextType.CODE:
-                return HTMLNode(self.text, "code")
+                return HTMLNode("code", self.text)
             case TextType.LINK:
-                return HTMLNode(self.text, "a", {"href": self.url})
+                return HTMLNode("a", self.text, {"href": self.url})
             case TextType.IMAGE:
-                return HTMLNode(self.text, "img", {"src": self.url})
+                return HTMLNode("img", self.text, {"src": self.url})
             case _:
                 raise ValueError(f"Invalid text type: {self.text_type}")

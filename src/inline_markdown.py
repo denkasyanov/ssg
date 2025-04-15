@@ -4,7 +4,7 @@ from typing import NamedTuple
 from textnode import TextNode, TextType
 
 
-def split_nodes_delimiter(
+def _split_nodes_delimiter(
     old_nodes: list[TextNode], delimiter: str, text_type: TextType
 ) -> list["TextNode"]:
     next_nodes = []
@@ -35,24 +35,24 @@ class MarkdownLink(NamedTuple):
     url: str
 
 
-def extract_markdown_images(markdown: str) -> list[MarkdownImage]:
+def _extract_markdown_images(markdown: str) -> list[MarkdownImage]:
     matches = re.findall(r"\!\[([^\]]*)\]\(([^)]+)\)", markdown)
     return [MarkdownImage(alt_text, url) for alt_text, url in matches]
 
 
-def extract_markdown_links(markdown: str) -> list[MarkdownLink]:
+def _extract_markdown_links(markdown: str) -> list[MarkdownLink]:
     matches = re.findall(r"(?<!!)\[([^\]]+)\]\(([^)]+)\)", markdown)
     return [MarkdownLink(text, url) for text, url in matches]
 
 
-def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+def _split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     next_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             next_nodes.append(node)
             continue
         remaining_text = node.text
-        images = extract_markdown_images(remaining_text)
+        images = _extract_markdown_images(remaining_text)
         if not images:
             next_nodes.append(node)
             continue
@@ -68,14 +68,14 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     return next_nodes
 
 
-def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+def _split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     next_nodes = []
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             next_nodes.append(node)
             continue
         remaining_text = node.text
-        links = extract_markdown_links(remaining_text)
+        links = _extract_markdown_links(remaining_text)
         if not links:
             next_nodes.append(node)
             continue
@@ -98,7 +98,7 @@ def text_to_textnodes(text: str) -> list[TextNode]:
         ("_", TextType.ITALIC),
         ("`", TextType.CODE),
     ]:
-        next_nodes = split_nodes_delimiter(next_nodes, delimiter, text_type)
-    next_nodes = split_nodes_image(next_nodes)
-    next_nodes = split_nodes_link(next_nodes)
+        next_nodes = _split_nodes_delimiter(next_nodes, delimiter, text_type)
+    next_nodes = _split_nodes_image(next_nodes)
+    next_nodes = _split_nodes_link(next_nodes)
     return next_nodes

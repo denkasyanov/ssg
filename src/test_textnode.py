@@ -25,33 +25,28 @@ def test_default_url():
     "input_text_node, expected_html_node",
     [
         pytest.param(
-            TextNode("Normal Text", TextType.TEXT),
-            HTMLNode("Normal Text"),
-            id="TEXT",
-        ),
-        pytest.param(
             TextNode("Bold Text", TextType.BOLD),
-            HTMLNode("Bold Text", "b"),
+            HTMLNode("b", "Bold Text"),
             id="BOLD",
         ),
         pytest.param(
             TextNode("Italic Text", TextType.ITALIC),
-            HTMLNode("Italic Text", "i"),
+            HTMLNode("i", "Italic Text"),
             id="ITALIC",
         ),
         pytest.param(
             TextNode("Code Text", TextType.CODE),
-            HTMLNode("Code Text", "code"),
+            HTMLNode("code", "Code Text"),
             id="CODE",
         ),
         pytest.param(
             TextNode("Link Text", TextType.LINK, "http://example.com"),
-            HTMLNode("Link Text", "a", {"href": "http://example.com"}),
+            HTMLNode("a", "Link Text", {"href": "http://example.com"}),
             id="LINK",
         ),
         pytest.param(
             TextNode("Alt Text", TextType.IMAGE, "http://example.com/image.png"),
-            HTMLNode("Alt Text", "img", {"src": "http://example.com/image.png"}),
+            HTMLNode("img", "Alt Text", {"src": "http://example.com/image.png"}),
             id="IMAGE",
         ),
     ],
@@ -64,3 +59,9 @@ def test_text_node_to_html_node(input_text_node, expected_html_node):
     assert converted_node.value == expected_html_node.value
     assert converted_node.children == expected_html_node.children
     assert converted_node.props == expected_html_node.props
+
+
+def text_plain_text_node_to_html():
+    text_node = TextNode("Normal Text", TextType.TEXT)
+    html_node = text_node.to_html_node()
+    assert html_node == "Normal Text"
