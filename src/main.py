@@ -1,7 +1,9 @@
-import shutil
 import os
-from block_markdown import markdown_to_html_node
+import shutil
+import sys
 from pathlib import Path
+
+from block_markdown import markdown_to_html_node
 
 ROOT_DIR = Path(__file__).parent.parent
 PUBLIC_DIR = ROOT_DIR / "public"
@@ -24,7 +26,7 @@ def extract_title(markdown: str):
     return markdown.splitlines()[0].strip("# ")
 
 
-def generate_page(from_path: Path, template_path: Path, to_path: Path):
+def generate_page(from_path: Path, template_path: Path, to_path: Path, basepath: str):
     print(f"Generating page from {from_path} to {to_path} using {template_path}")
 
     with open(from_path, "r") as md_source_file:
@@ -40,28 +42,41 @@ def generate_page(from_path: Path, template_path: Path, to_path: Path):
     os.makedirs(to_path.parent, exist_ok=True)
     with open(to_path, "w") as f:
         f.write(
-            html_template.replace("{{ Title }}", title).replace("{{ Content }}", html)
+            html_template.replace("{{ Title }}", title)
+            .replace("{{ Content }}", html)
+            .replace('href="/', f'href="{basepath}')
+            .replace('src="/', f'src="{basepath}')
         )
 
 
 def generate_pages_recursively(
-    content_dir: Path, template_path: Path, public_dir: Path
+    content_dir: Path, template_path: Path, public_dir: Path, basepath: str
 ):
     for file in content_dir.iterdir():
         if file.is_file() and file.suffix == ".md":
             generate_page(
-                file, template_path, public_dir / file.name.replace(".md", ".html")
+                file,
+                template_path,
+                public_dir / file.name.replace(".md", ".html"),
+                basepath,
             )
         elif file.is_dir():
-            generate_pages_recursively(file, template_path, public_dir / file.name)
+            generate_pages_recursively(
+                file, template_path, public_dir / file.name, basepath
+            )
 
 
 def main():
+    basepath = "/"
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    print(f"Using basepath: {basepath}")
+
     clean_public_dir()
     copy_static()
 
     generate_pages_recursively(
-        ROOT_DIR / "content", ROOT_DIR / "template.html", PUBLIC_DIR
+        ROOT_DIR / "content", ROOT_DIR / "template.html", PUBLIC_DIR, basepath
     )
 
 
