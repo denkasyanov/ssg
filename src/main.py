@@ -1,9 +1,25 @@
+import shutil
 from textnode import TextNode, TextType
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent.parent
+PUBLIC_DIR = ROOT_DIR / "public"
+STATIC_DIR = ROOT_DIR / "static"
+
+
+def clean_public_dir():
+    if PUBLIC_DIR.exists():
+        shutil.rmtree(PUBLIC_DIR)
+    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def copy_static():
+    shutil.copytree(STATIC_DIR, PUBLIC_DIR, dirs_exist_ok=True)
 
 
 def main():
-    text_node = TextNode("Hello, World!", TextType.TEXT)
-    print(text_node)
+    clean_public_dir()
+    copy_static()
 
 
 if __name__ == "__main__":
