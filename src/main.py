@@ -8,6 +8,7 @@ from block_markdown import markdown_to_html_node
 ROOT_DIR = Path(__file__).parent.parent
 PUBLIC_DIR = ROOT_DIR / "public"
 STATIC_DIR = ROOT_DIR / "static"
+DOCS_DIR = ROOT_DIR / "docs"
 
 
 def clean_public_dir():
@@ -76,7 +77,7 @@ def main():
     copy_static()
 
     generate_pages_recursively(
-        ROOT_DIR / "content", ROOT_DIR / "template.html", PUBLIC_DIR, basepath
+        ROOT_DIR / "content", ROOT_DIR / "template.html", DOCS_DIR, basepath
     )
 
 
