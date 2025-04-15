@@ -1,1 +1,1 @@
-uv run python src/main.py "/REPO_NAME/"
+uv run python src/main.py "/ssg/"
