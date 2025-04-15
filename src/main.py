@@ -12,13 +12,13 @@ DOCS_DIR = ROOT_DIR / "docs"
 
 
 def clean_public_dir():
-    if PUBLIC_DIR.exists():
-        shutil.rmtree(PUBLIC_DIR)
-    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+    if DOCS_DIR.exists():
+        shutil.rmtree(DOCS_DIR)
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def copy_static():
-    shutil.copytree(STATIC_DIR, PUBLIC_DIR, dirs_exist_ok=True)
+    shutil.copytree(STATIC_DIR, DOCS_DIR, dirs_exist_ok=True)
 
 
 def extract_title(markdown: str):
