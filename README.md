@@ -9,7 +9,11 @@ Guided project by [boot.dev](https://www.boot.dev/courses/build-static-site-gene
 
 ## Usage
 
-TODO
+Run
+
+```Shell
+./main.py
+```
 
 ## Test
 

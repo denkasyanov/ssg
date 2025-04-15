@@ -17,6 +17,12 @@ def copy_static():
     shutil.copytree(STATIC_DIR, PUBLIC_DIR, dirs_exist_ok=True)
 
 
+def extract_title(markdown: str):
+    if not markdown.startswith("# "):
+        raise ValueError("Markdown must start with a title")
+    return markdown.splitlines()[0].strip("# ")
+
+
 def main():
     clean_public_dir()
     copy_static()
